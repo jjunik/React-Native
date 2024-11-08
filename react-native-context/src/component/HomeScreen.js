@@ -4,14 +4,14 @@ import UserContext from "../context/UserContext";
 import LoginProvider from "../context/UserContext";
 
 const HomeComponent = () => {
-    const {isLogin, toggleLogin} = useContext(LoginProvider);
+    const {user} = useContext(UserContext);
 
     return(
         <View style={styles.container}>
             <Text style={styles.text}>
-                {isLogin ? 'Welcome, 홍길동님' : '로그인 하세요'}
+                {user.isLogin ? 'Welcome, 홍길동님' : '로그인 하세요'}
             </Text>
-            <Button title={isLogin ? '로그아웃' : '로그인'} onPress={toggleLogin}/>
+            <Button title={user.isLogin ? '로그아웃' : '로그인'} onPress={toggleLogin}/>
         </View>
     )
 }

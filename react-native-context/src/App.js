@@ -8,6 +8,7 @@ import ThemedComponent from "./component/ThemedComponent";
 import { CartProvider } from "./context/CatContext";
 import CartScreen from "./component/CartScreen";
 import HomeComponent from "./component/HomeScreen";
+import LoginProvider from "./context/UserContext";
 
 const Container = styled.View`
     flex : 1;
@@ -18,11 +19,11 @@ const Container = styled.View`
 
 const App = () => {
     return(
-        <UserProvider>
+        <LoginProvider>
         <Container>
             <HomeComponent/>
         </Container>
-        </UserProvider>
+        </LoginProvider>
     )
 }
 export default App;
