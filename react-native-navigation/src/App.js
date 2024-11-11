@@ -7,6 +7,7 @@ import TapNavigator from './navigations/Tap';
 import ShopTapNavigator from './navigations/ShoppingTap';
 import ChatTapNavigator from './navigations/ChatTap';
 import ChatStackNavigation from './navigations/ChatStack';
+import DrawerNavigation from './navigations/Drawer';
 
 // import styled from 'styled-components';
 
@@ -20,8 +21,7 @@ import ChatStackNavigation from './navigations/ChatStack';
 const App = () => {
     return(
         <NavigationContainer>
-            <ChatTapNavigator/>
-            <ChatStackNavigation/>
+            <DrawerNavigation/>
         </NavigationContainer>
     )
 }
