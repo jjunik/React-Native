@@ -19,6 +19,10 @@ export const validateEmail = email =>{
 
 export const removeWhitespace = text => {
     const regex = /\s/g;
+    // /g를 안쓰면 최초의 공백만 찾고 멈춤
+    // 문자열에 모든 공백을 찾으려면 /g까지 써줘야 함
+    // /g : 정규 표현식이 문자열에서 모든 일치 항목을 찾도록 설정
+    return text.replace(regex,'')
 }
 
-// 문자열에서 공백을 모두 제거하는 함수
+// 문자열에서 공백을 모두 제거하는 함수 

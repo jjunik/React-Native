@@ -65,10 +65,10 @@ const StyledTextInput = styled.TextInput.attrs(({theme}) => ({
                     secureTextEntry={isPassword}
                     returnKeyType={returnKeyType}
                     maxLength={maxLength}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    textContentType="none"
-                    underLineColorAndroid="transparent"
+                    autoCapitalize="none" // 첫 글자 대문자로 안나오게
+                    autoCorrect={false} // 단어 추천기능 안뜨게
+                    textContentType="none" // ios에서만 사용하는 옵션, 옵션따라 뜨는 키보드가 달라짐
+                    underLineColorAndroid="transparent" // 컴포넌트의 밑줄 색상을 설정할 때 사용
                 />
             </Container>
         );
