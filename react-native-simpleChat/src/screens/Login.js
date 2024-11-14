@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from "react";
+import React, {useRef, useState, useEffect,useContext} from "react";
 import styled from "styled-components";
 import { TouchableWithoutFeedback,Keyboard } from "react-native"; 
 // TouchableWithoutFeedback 컴포넌트를 클릭했을 때 클릭에 대한 상호작용은 하지만 스타일 작용은 없고, 반드시 하나의 자식컴포넌트를 가져야 한다
@@ -10,6 +10,10 @@ import { images } from "../utils/Images";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {validateEmail , removeWhitespace} from '../utils/Common'
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Alert } from "react-native";
+import { login } from "../utils/firebase";
+import { ProgressContext, ProgressProvider } from "../contexts/Progress";
+import { UserContext } from "../contexts";
 
 const Container = styled.View`
     flex : 1;
@@ -30,6 +34,9 @@ const ErrorText = styled.Text`
 `
 
 const Login = ({navigation}) => {
+
+    const {spinner} = useContext(ProgressContext);
+    const {dispatch} = useContext(UserContext);
     // useSafeAreaInsets()
     // 화면의 안전 영역을 고려해 레이아웃을 조정할 때 사용하는 Hook
     // ios 장치의 상단 노치나 하단 홈 버튼 영역과 같은 안전구역을 감안해 레이아웃을 맞추기 위해 사용
@@ -55,16 +62,26 @@ const Login = ({navigation}) => {
         // Input에 적힌 email을 받아와서 모든 공백 제거
         const changedEmail = removeWhitespace(email);
         setEmail(changedEmail);
-        setErrorMessage(
+        setErrorMessage( 
             validateEmail(changedEmail) ? '' : 'Please verify your email'
         )
     }
     const _handlePasswordChange = password => {
         setPassword(removeWhitespace(password));
     }
-    const _handleLoginButtonPress = () => {
-        alert('clicked')
+    const _handleLoginButtonPress = async () => {
+        try {
+            spinner.start();
+            const user = await login({email, password});
+            dispatch(user);
+            Alert.alert('Login Success', user.email);
+        } catch (error) {
+            Alert.alert('Login Error' , error.message )
+        } finally{
+            spinner.stop(); 
+        }
     }
+    
 
     return(
         <KeyboardAwareScrollView

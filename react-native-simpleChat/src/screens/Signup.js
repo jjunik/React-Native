@@ -1,11 +1,14 @@
-import React,{useState,useEffect,useRef} from "react";
+import React,{useState,useEffect,useRef, useContext} from "react";
+import { ProgressContext, UserContext } from "../contexts";
 import styled from "styled-components";
-import { Text } from "react-native";
+import { Alert, Text } from "react-native";
 import { theme } from "../Theme";
 import { Button,Image,Input } from "../components";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { validateEmail, removeWhitespace } from "../utils/Common";
 import { images } from "../utils/Images";
+import { signup } from "../utils/firebase";
+
 
 const Container = styled.View`
     flex : 1;
@@ -24,6 +27,9 @@ const ErrorText = styled.Text`
 `
 
 const Signup = () => {
+    const {spinner} = useContext(ProgressContext);
+    const {dispatch} = useContext(UserContext);
+
     const[photoUrl, setPhotoUrl] = useState(images.person);
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
@@ -65,8 +71,18 @@ const Signup = () => {
             !(name&&email&&password&&passwordConfirm&&!errorMessage)
         )
     },[]) 
-    const _handleSignupButtonPress = () =>{
-
+    const _handleSignupButtonPress = async () =>{
+        try {
+            spinner.start();
+            const user = await signup({email, password, name, photoUrl});
+            console.log(user);
+            dispatch(user);
+            Alert.alert('Signup Success' , user.email);
+        } catch (error) {
+            Alert.alert('Signup Error', error.message);
+        }finally{
+            spinner.stop();
+        }
     };
 
     return(
@@ -97,7 +113,7 @@ const Signup = () => {
                 ref={emailRef}
                 lable="Email"
                 value={email}
-                onChangeText={text => setEmail(validateEmail(removeWhitespace(text)))}
+                onChangeText={text => setEmail(removeWhitespace(text))}
                 onSubmitEditing={()=> passwordRef.current.focus()}
                 placeholder="email"
                 returnKeyType="next"
@@ -106,8 +122,8 @@ const Signup = () => {
                 ref={passwordRef}
                 lable="Password"
                 value={password}
-                onChangeText={text => setPasswordConfirm(removeWhitespace(text))}
-                onSubmitEditing={() => password.current.focus}
+                onChangeText={text => setPassword(removeWhitespace(text))}
+                onSubmitEditing={() => passwordConfirmRef.current.focus()}
                 placeholder="Password"
                 returnKeyType="done"
                 isPassword={true}
@@ -116,7 +132,7 @@ const Signup = () => {
                 ref={passwordConfirmRef}
                 lable="PasswordConfirm"
                 value={passwordConfirm}
-                onChangeText={text => setPassword(removeWhitespace(text))}
+                onChangeText={text => setPasswordConfirm(removeWhitespace(text))}
                 onSubmitEditing={_handleSignupButtonPress}
                 placeholder="PasswordConfirm"
                 returnKeyType="done"

@@ -1,5 +1,6 @@
 import Image from "./Image";
 import Input from "./Input";
 import Button from "./Button";
+import Spinner from "./Spinner";
 
-export {Image, Button, Input};
+export {Image, Button, Input, Spinner};
