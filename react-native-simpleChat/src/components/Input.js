@@ -20,12 +20,14 @@ const Label = styled.Text`
 const StyledTextInput = styled.TextInput.attrs(({theme}) => ({
     placeholderTextColor : theme.inputPlaceholder,    
 }))`
-    background-color : ${({theme}) => theme.background};
+    background-color : ${({theme,editable}) =>
+         editable ? theme.background : theme.inputDisabledBackground};
     color : ${({theme}) => theme.text};
     padding : 20px 10px;
     font-size : 16px;
     border : 1px solid ${({theme, isFocused}) => (isFocused ? theme.text : theme.inputBorder)};
     border-radius : 4px;
+    
     `
     // forwardRef()
     // React 에서 특정 컴포넌트가 받은 ref를 자식 컴포넌트의 특정 DOM 요소나 
@@ -41,7 +43,8 @@ const StyledTextInput = styled.TextInput.attrs(({theme}) => ({
             placeholder,
             isPassword,
             returnKeyType,
-            maxLength
+            maxLength,
+            disabled,
         },
             ref
 
@@ -69,6 +72,7 @@ const StyledTextInput = styled.TextInput.attrs(({theme}) => ({
                     autoCorrect={false} // 단어 추천기능 안뜨게
                     textContentType="none" // ios에서만 사용하는 옵션, 옵션따라 뜨는 키보드가 달라짐
                     underLineColorAndroid="transparent" // 컴포넌트의 밑줄 색상을 설정할 때 사용
+                    editable={!disabled} // 해당 컴포넌트를 수정할수 있냐 없냐
                 />
             </Container>
         );
@@ -76,17 +80,20 @@ const StyledTextInput = styled.TextInput.attrs(({theme}) => ({
     )
     Input.defaultProps={
         onBlur: () => {},
+        onChangeText: () => {},
+        onSubmitEditing: () => {},
     }
 
     Input.propTypes = {
         label : PropTypes.string.isRequired,
         value : PropTypes.string.isRequired,
         onChangeText : PropTypes.func,
+        onSubmitEditing : PropTypes.func,
         onBlur : PropTypes.func,
         placeholder : PropTypes.string,
         isPassword : PropTypes.bool,
         returnKeyType :  PropTypes.oneOf(['done', 'next']),
-        maxLength : PropTypes.number
-
+        maxLength : PropTypes.number,
+        editable : PropTypes.bool
     }
 export default Input;
