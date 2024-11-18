@@ -1,21 +1,141 @@
-import React from "react";
-import styled from "styled-components";
-import { Text,Button } from "react-native";
+import React,{useContext, useState, useEffect} from "react";
+import styled, {ThemeContext} from "styled-components";
+import { FlatList } from "react-native";
+import {MaterialIcons} from "@expo/vector-icons";
+import {db} from '../utils/firebase'
+import moment from "moment";
+import { doc, onSnapshot, orderBy, query, collection} from "firebase/firestore";
+
 
 const Container = styled.View`
     flex: 1;
     background-color : ${({theme}) => theme.background}
 `
+const ItemContainer = styled.TouchableOpacity`
+    flex-direction : row;
+    align-items : center;
+    border-bottom-width : 1px;
+    border-color : ${({theme}) => theme.listBorder};
+    padding: 15px 20px;
+`
+const ItemTextContainer = styled.View`
+    flex: 1;
+    flex-direction: column;
+`
+const ItemTitle = styled.Text`
+    font-size: 20px;
+    font-weight : 600;
+`
+const ItemDescription = styled.Text`
+    font-size : 16px;
+    margin-top : 5px;
+    color : ${({theme}) => theme.listDescription};
+`
+const ItemTime = styled.Text`
+    font-size : 12px;
+    color : ${({theme})=> theme.listTime};
+`
+
+// FlatList 에는 3가지 속성이 필요하다
+// 1. 렌더링 할 항목의 데이터를 배열로 전달.
+// 2. 전달된 배열의 항목을 이용해 항목을 렌더링 하는함수
+// 3. 각 항목에 키를 추가하기 위해 고유한 값을 반환하는 함수
+
+// 채널을 100개 생성
+const channels = [];
+for(let idx = 0; idx < 100; idx++){
+    channels.push({
+        id: idx,
+        title : `title ${idx}`,
+        description : `description ${idx}`,
+        createAt: idx,
+    });
+}
+
+const getDateOrTime = ts => {
+    // 현재 시간을 가져와 하루의 시작 지점으로 ㅅ ㅓㄹ정
+    // startOf('day') : 2024-11-18 00:00:00;
+    // moment 라이브러리 시간및 날짜와 관련된 함수를
+    const now = moment().startOf('day');
+    // 주어진 타임 스탬프(ts)를 가져와 '하루의 시작 지점 (00:00:00)' 으로 설정
+    const target = moment(ts).startOf('day');
+
+    // 현재 날짜와 주어진 날짜으,ㅣ 시간 차이를 계산하여
+    // 차이가 0일이면 같은 날, 0보다 크면 과거 날짜다
+    // 조건에 따라 날짜 형식을 선택 (다른날은 MM/DD 같은 날은 HH/ MM  형식)
+    return moment(ts).format(now.diff(target, 'days') > 0 ? 'MM/DD' : 'HH/mm');
+}
+
+//React.memo()
+// React에서 제공하는 고차 컴포넌트로, 컴포넌트의 렌더링을 최적화 하기 위해 사용한다.
+// 컴포넌트가 받는  props가 변경되지 않았다면 리렌더링을 건너뛰게 해주는 기능
+
+const Item = React.memo(({item: {id, title, description, createAt}, onPress}) => {
+    const theme = useContext(ThemeContext);
+    console.log(`itme: ${id}`);
+
+    return(
+        <ItemContainer onPress={() => onPress({id, title})}>
+            <ItemTextContainer>
+                <ItemTitle>{title}</ItemTitle>
+                <ItemDescription>{description}</ItemDescription>
+            </ItemTextContainer>
+            <ItemTime>{getDateOrTime(createAt)}</ItemTime>
+            <MaterialIcons name="keyboard-arrow-right" size={24} color={theme.listIcon}/>
+        </ItemContainer>
+    )
+})
 
 const ChannelList = ({navigation}) => {
+    const [channels, setChannels] = useState([]);
+    useEffect(() => {
+        // query()
+        // Firestore 에서 데이터 조회를 위한 쿼리를 생성
+        // collection() 로 참조한 컬렉션에서 orderby 조건에 따라 정렬된 쿼리객체를 가져온다
+        const collectionQuery = query( 
+            collection(db,'channels'),
+            orderBy('createAt', 'desc')); 
+
+            // 실시간 데이터 구독을 시작
+            // onSnapshot() : 실시간으로 데이터가 추가, 수정, 삭제되거나 조건에 맞게 변경이 되면 자동으로 최신의 데이터를 받을 수 있다.
+        const unsubscribe = onSnapshot(collectionQuery, (snapshot) => {
+            const list = [];
+            // 쿼리의 결과에서 객체를 하나씩 꺼내서 list에 저장
+            snapshot.forEach(doc => {
+                list.push(doc.data());
+            });
+            // 저장된 list를 state에 저장
+            setChannels(list)
+        });
+        // 클린업 함수로 useEffect() 가 다시 실행되거나 컴포넌트가 언마운트 될 때 실행
+        return () => unsubscribe();
+    },[]);
+    
+
+    
+
+    const _handleItemPress = params => {
+        navigation.navigate('Channel', params);
+    }
     return(
         <Container>
-            <Text style={{fontSize: 24}}>Channel List</Text>
-            <Button
-                title="Channel Creation"
-                onPress={() => navigation.navigate('Channel Creation')}
+            <FlatList
+                // 각 항목의 고유 키를 지정하는 함수
+                // 'id' 필드를 가져와 문자열로 변환하여 key로 사용
+                keyExtractor={item => item['id']} 
+                // 리스트에 렌더링 할 데이터 배열
+                data={channels}
+                // 각 항목을 렌더링하는 데 사용할 함수
+                // item 객체를 Item 컴포넌트에 전달하고 클릭시 _handleItemPress 를 호출
+                renderItem={({item})=> (
+                    <Item item={item} onPress={_handleItemPress} />
+                )}
+
+                windowSize={3}
+                // windowSize를 작은값으로 변경하면 렌더링 되는 데이터가 줄어들어서 메모리의 소비를 줄이고 성능을 향상시킬 수 있다.
             />
         </Container>
     )
 }
 export default ChannelList;
+

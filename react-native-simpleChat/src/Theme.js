@@ -22,6 +22,8 @@ export const theme = {
     buttonTitle : colors.white,
     buttonUnfilledTitle : colors.blue,
     buttonLogout : colors.red,
+    sendButtonActive : colors.blue,
+    sendButtonInactive : colors.grey_1,
 
     imageBackground: colors.grey_0,
     imageButtonBackground : colors.grey_1,
@@ -33,4 +35,9 @@ export const theme = {
 
     spinnerBackground : colors.black,
     spinnerIndicator : colors.white,
+
+    listBorder : colors.grey_0,
+    listTime : colors.grey_1,
+    listDescription : colors.grey_1,
+    listIcon : colors.black,
 }

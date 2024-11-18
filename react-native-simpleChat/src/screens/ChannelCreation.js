@@ -1,7 +1,7 @@
 import React,{useState, useRef, useEffect, useContext} from "react";
 import styled from "styled-components";
 import { Text } from "react-native";
-import { Input,Button, Spinner } from "../components";
+import { Input,Button } from "../components";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Alert } from "react-native";
 import { ProgressContext } from "../contexts";
@@ -24,7 +24,7 @@ const ErrorText = styled.Text`
 `
 
 const ChannelCreation = ({navigation}) => {   
-    const {Spinner} = useContext(ProgressContext);
+    const {spinner} = useContext(ProgressContext);
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -42,7 +42,7 @@ useEffect(()=> {
 // create 버튼 클릭시 db에 추가하기
 const _handleCreateButtonPress = async () => {
     try {
-        Spinner.start();
+        spinner.start();
         // createChannel() 함수를 호출하여 새 채널을 생성
         // title과 description을 전달
         // 생성된 채널의 ID를 반환받는다
@@ -51,11 +51,10 @@ const _handleCreateButtonPress = async () => {
         // 생성된 채널의 세부 화면으로 이동
         // 뒤로가기 버튼을 눌렀을 때 이전화면으로 돌아가지 않도록 처리
         navigation.replace('Channel', {id, title});
-        navigation.navigate('Channel', {id, title});
     } catch (error) {
         Alert.alert('Creation Error', error.message)
     }finally{
-        Spinner.stop();
+        spinner.stop();
     }
 }
 // Input에 입력된 title 을 state에 반영
@@ -98,7 +97,8 @@ const _handleTitleChange = title => {
             <Button
                 title="Create"
                 onPress={_handleCreateButtonPress}
-                disabled={disabled}
+                // disabled={disabled}
+                
                 />        
         </Container>
         </KeyboardAwareScrollView>

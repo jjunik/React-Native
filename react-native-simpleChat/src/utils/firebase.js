@@ -2,7 +2,7 @@ import {initializeApp} from 'firebase/app'
 import { getAuth,signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut} from 'firebase/auth';
 import config from '../../firebase.json'
 import { getStorage,uploadBytes,ref, getDownloadURL} from 'firebase/storage';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore,doc,collection,setDoc } from 'firebase/firestore';
 
 
 //initializeApp()메서드
@@ -74,7 +74,7 @@ export const updateUserInfo = async photo => {
     return photoUrl;
 }
 
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 
 //새로운 채널을 생성하는 함수
@@ -107,4 +107,14 @@ export const createChannel = async({title, description}) => {
     await setDoc(newChannelRef, newChannel);
     // 생성된 문서의 ID를 반환
     return id;
+}
+
+export const createMessage = async ({channelId, text}) => {
+    // 특정 채널의 메시지 컬렉션 안에 새로운 메시지 문서의 레퍼런스를 생성
+    const docRef = doc(db, `channels/${channelId}/messages`,text);
+    
+    // 생성된 문서 레퍼런스에 메시지 데이터를 저장
+    // 기존 메시지 객체의 모든 속성을 복사하고
+    // createAt 필드를 현재의 시간으로 추가
+    await setDoc(docRef, {...text, createAt: Date.now()});
 }
