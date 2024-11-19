@@ -72,3 +72,6 @@ label: Description
 채널별로 발생한 메시지를 모아서 관리하면 채널에서 주고받는 메시지를 편하게
 저장하고 불러올 수 있다.
 
+구글 플레이 콘솔
+개발자 계정 만들고
+eas build --platform android --profile production
